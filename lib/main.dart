@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Test Apps',
-      theme: lightTheme,
+      theme: darkTheme,
       home: SplashScreen()
     );
   }

@@ -1,16 +1,19 @@
-# test_app
+# Delivery App 
 
-A new Flutter project.
+## Two Themes: Light and Dark mode
 
-## Getting Started
+<br/>
+<br/>
 
-This project is a starting point for a Flutter application.
+<p float="left">
+  <img src="screenshots/screenshot_light1.png" width="300" />
+  <img src="screenshots/screenshot_dark1.png" width="300" /> 
+</p>
 
-A few resources to get you started if this is your first Flutter project:
+<p float="left">
+  <img src="screenshots/screenshot_light2.png" width="300" />
+  <img src="screenshots/screenshot_dark2.png" width="300" /> 
+</p>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+(Disclaimer: not my design)
