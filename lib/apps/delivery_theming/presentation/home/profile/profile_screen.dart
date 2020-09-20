@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/apps/delivery_theming/data/datasource/api_repository_impl.dart';
+import 'package:test_app/apps/delivery_theming/data/datasource/local_repository_impl.dart';
+import 'package:test_app/apps/delivery_theming/domain/repository/api_repository.dart';
 import '../../theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -96,7 +99,9 @@ class ProfileScreen extends StatelessWidget {
                         style: TextStyle(color: DeliveryColors.white),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      LocalRepositoryImpl().clearAllData();
+                    },
                   ))
                 ],
               ))

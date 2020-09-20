@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/apps/delivery_theming/presentation/splash/splash_screen.dart';
+import 'package:get/get.dart';
+import 'package:test_app/apps/delivery_theming/presentation/main_binding.dart';
+import 'package:test_app/apps/delivery_theming/presentation/routes/navigation.dart';
 import 'package:test_app/apps/delivery_theming/presentation/theme.dart';
 
 void main() {
@@ -9,11 +11,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Test Apps',
       theme: darkTheme,
-      home: SplashScreen()
+      initialRoute: DeliveryRoutes.splash,
+      getPages: DeliveryPages.pages,
+      initialBinding: MainBinding(),
     );
   }
 }
