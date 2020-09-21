@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/apps/delivery_theming/data/in_memory_products.dart';
-import 'package:test_app/apps/delivery_theming/domain/model/product.dart';
+import 'package:get/state_manager.dart';
+import 'package:test_app/apps/delivery_theming/domain/model/product_cart.dart';
+import 'package:test_app/apps/delivery_theming/presentation/home/cart/cart_controller.dart';
 import 'package:test_app/apps/delivery_theming/presentation/theme.dart';
 import 'package:test_app/apps/delivery_theming/presentation/widgets/delivery_button.dart';
 
-class CartScreen extends StatelessWidget {
-  const CartScreen({Key key, this.onShopping}) : super(key: key);
+class CartScreen extends GetWidget<CartController> {
+  CartScreen({Key key, this.onShopping}) : super(key: key);
   final VoidCallback onShopping;
 
   @override
@@ -14,14 +15,16 @@ class CartScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Shopping Cart'),
         ),
-        body: _FullCart()
-        // _EmptyCart(onShopping: onShopping,)
-        );
+        body: Obx(() => controller.totalItems.value == 0
+            ? _EmptyCart(
+                onShopping: onShopping,
+              )
+            : _FullCart()));
   }
 }
 
-class _FullCart extends StatelessWidget {
-  const _FullCart({
+class _FullCart extends GetWidget<CartController> {
+  _FullCart({
     Key key,
   }) : super(key: key);
 
@@ -34,13 +37,27 @@ class _FullCart extends StatelessWidget {
             flex: 3,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: ListView.builder(
-                  itemCount: products.length,
-                  scrollDirection: Axis.horizontal,
-                  itemExtent: 230,
-                  itemBuilder: (context, index) {
-                    return _ShoppingCartProduct(product: products[index]);
-                  }),
+              child: Obx(
+                () => ListView.builder(
+                    itemCount: controller.cartList.length,
+                    scrollDirection: Axis.horizontal,
+                    itemExtent: 230,
+                    itemBuilder: (context, index) {
+                      final productCart = controller.cartList[index];
+                      return _ShoppingCartProduct(
+                        productCart: productCart,
+                        onDelete: () {
+                          controller.delete(productCart);
+                        },
+                        onIncrement: () {
+                          controller.increment(productCart);
+                        },
+                        onDecrement: () {
+                          controller.decrement(productCart);
+                        },
+                      );
+                    }),
+              ),
             )),
         Expanded(
             flex: 2,
@@ -54,73 +71,80 @@ class _FullCart extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('Sub total',
-                            style: Theme.of(context).textTheme.caption.copyWith(
-                              color: Theme.of(context).accentColor
-                            )
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Sub total',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .caption
+                                      .copyWith(
+                                          color:
+                                              Theme.of(context).accentColor)),
+                              Obx(
+                                () => Text(
+                                    '${controller.totalPrice.toStringAsFixed(2)} usd',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(
+                                            color:
+                                                Theme.of(context).accentColor)),
+                              ),
+                            ],
                           ),
-                          Text('0.0 usd',
-                            style: Theme.of(context).textTheme.caption.copyWith(
-                              color: Theme.of(context).accentColor
-                            )
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Delivery',
+                                  style: TextStyle(
+                                      color: Theme.of(context).accentColor)),
+                              Text('Free',
+                                  style: TextStyle(
+                                      color: Theme.of(context).accentColor)),
+                            ],
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Delivery',
-                            style: TextStyle(
-                              color: Theme.of(context).accentColor)
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Total',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Theme.of(context).accentColor)),
+                              Obx(
+                                () => Text(
+                                    '${controller.totalPrice.toStringAsFixed(2)} USD',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Theme.of(context).accentColor)),
+                              ),
+                            ],
                           ),
-                          Text('Free',
-                            style: TextStyle(
-                              color: Theme.of(context).accentColor)
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Theme.of(context).accentColor)
-                          ),
-                          Text('\$85.00 USD',
-                            style: TextStyle(
-                               fontSize: 18,
-                              color: Theme.of(context).accentColor)
-                          ),
-                        ],
-                      ),
-                      Spacer(),
-                      DeliveryButton(
-                        text: 'Checkout',
-                        onTap:(){
-
-                        }
-                      )
-                    ]
+                          Spacer(),
+                          DeliveryButton(text: 'Checkout', onTap: () {})
+                        ]),
                   ),
-                  ),
-                )
-              )
-            ),
+                ))),
       ],
     );
   }
 }
 
 class _ShoppingCartProduct extends StatelessWidget {
-  const _ShoppingCartProduct({Key key, this.product}) : super(key: key);
-  final Product product;
+  const _ShoppingCartProduct(
+      {Key key,
+      this.productCart,
+      this.onDelete,
+      this.onIncrement,
+      this.onDecrement})
+      : super(key: key);
+  final ProductCart productCart;
+  final VoidCallback onDelete;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +168,7 @@ class _ShoppingCartProduct extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         child: ClipOval(
                           child: Image.asset(
-                            product.image,
+                            productCart.product.image,
                           ),
                         ),
                       ),
@@ -154,12 +178,12 @@ class _ShoppingCartProduct extends StatelessWidget {
                       flex: 3,
                       child: Column(children: [
                         Text(
-                          product.name,
+                          productCart.product.name,
                           style: TextStyle(color: DeliveryColors.green),
                         ),
                         const SizedBox(height: 15),
                         Text(
-                          product.description,
+                          productCart.product.description,
                           style: Theme.of(context)
                               .textTheme
                               .overline
@@ -180,19 +204,15 @@ class _ShoppingCartProduct extends StatelessWidget {
                                   child: Icon(Icons.remove,
                                       color: DeliveryColors.purple),
                                 ),
-                                onTap: () {
-                                  print('remove');
-                                },
+                                onTap: onDecrement,
                               ),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text('2'),
+                                child: Text(productCart.quantity.toString()),
                               ),
                               InkWell(
-                                onTap: () {
-                                  print('add');
-                                },
+                                onTap: onIncrement,
                                 child: Container(
                                   decoration: BoxDecoration(
                                       color: DeliveryColors.purple,
@@ -205,7 +225,7 @@ class _ShoppingCartProduct extends StatelessWidget {
                               ),
                               Spacer(),
                               Text(
-                                '\$${product.price}',
+                                '\$${productCart.product.price}',
                                 style: TextStyle(
                                   color: DeliveryColors.green,
                                 ),
@@ -221,7 +241,7 @@ class _ShoppingCartProduct extends StatelessWidget {
           Positioned(
               right: 0,
               child: InkWell(
-                onTap: () {},
+                onTap: onDelete,
                 child: CircleAvatar(
                     backgroundColor: DeliveryColors.pink,
                     child: Icon(Icons.delete_outline)),

@@ -1,9 +1,12 @@
 import 'package:get/route_manager.dart';
+import 'package:test_app/apps/delivery_theming/presentation/home/home_binding.dart';
 import 'package:test_app/apps/delivery_theming/presentation/home/home_screen.dart';
 import 'package:test_app/apps/delivery_theming/presentation/login/login.dart';
 import 'package:test_app/apps/delivery_theming/presentation/login/login_binding.dart';
 import 'package:test_app/apps/delivery_theming/presentation/splash/splash_binding.dart';
 import 'package:test_app/apps/delivery_theming/presentation/splash/splash_screen.dart';
+
+import '../main_binding.dart';
 
 class DeliveryRoutes{
   static final String splash = '/splash';
@@ -16,16 +19,17 @@ class DeliveryPages {
     GetPage(
       name: DeliveryRoutes.splash,
       page: () => SplashScreen(),
-      binding: SplashBinding(),
+      bindings: [MainBinding(),SplashBinding()],
     ),
     GetPage(
       name: DeliveryRoutes.login,
       page: () => LoginScreen(),
-      binding: LoginBinding(),
+      bindings: [MainBinding(),LoginBinding()],
     ),
     GetPage(
       name: DeliveryRoutes.home,
       page: () => HomeScreen(), 
+      bindings: [MainBinding(),HomeBinding()],
     ),
   ];
 }

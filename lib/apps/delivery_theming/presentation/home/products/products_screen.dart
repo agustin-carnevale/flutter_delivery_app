@@ -1,35 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/apps/delivery_theming/data/in_memory_products.dart';
+import 'package:get/get.dart';
 import 'package:test_app/apps/delivery_theming/domain/model/product.dart';
+import 'package:test_app/apps/delivery_theming/presentation/home/cart/cart_controller.dart';
+import 'package:test_app/apps/delivery_theming/presentation/home/products/products_controller.dart';
 import 'package:test_app/apps/delivery_theming/presentation/widgets/delivery_button.dart';
-
 import '../../theme.dart';
 
 class ProductsScreen extends StatelessWidget {
+  final controller = Get.put<ProductsController>(
+    ProductsController(
+      apiRepositoryInterface: Get.find(),
+    )
+  );
+  final cartController = Get.find<CartController>();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('Products'),
         ),
-        body: GridView.builder(
-            padding: const EdgeInsets.all(20.0),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 2 / 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return _ItemProduct(product: products[index]);
-            }));
+        body: Obx(()=> controller.productList.isNotEmpty ? GridView.builder(
+              padding: const EdgeInsets.all(20.0),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 2 / 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: controller.productList.length,
+              itemBuilder: (context, index) {
+                final product = controller.productList[index];
+                return _ItemProduct(product: product , onTap: (){
+                  cartController.add(product);
+                },);
+              })
+              : 
+              const Center(
+                child: CircularProgressIndicator()
+              )
+        ));
   }
 }
 
 class _ItemProduct extends StatelessWidget {
-  const _ItemProduct({Key key, this.product}) : super(key: key);
+  const _ItemProduct({Key key, this.product, this.onTap}) : super(key: key);
   final Product product;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +96,7 @@ class _ItemProduct extends StatelessWidget {
           DeliveryButton(
               padding: const EdgeInsets.symmetric(vertical: 4),
               text: 'Add',
-              onTap: () {})
+              onTap: onTap)
         ]),
       ),
     );
